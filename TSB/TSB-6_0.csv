@@ -1,0 +1,6 @@
+,1,2,3,4,5,6
+1,,Base case ,Upside ,Mild Down ,Downside ,Severe Down % 
+2,Scenario weighting ,40% ,10% ,20% ,25% ,5% 
+3,Unemployment Peak rate ,3.8% ,3.8% ,5.1% ,6.3% ,9.2% 
+4,House prices Peak-to-trough fall ,+ve ,+ve ,(14.0)% ,(20.5)% ,(34.5)% 
+5,Interest rates Most extreme rate(1 ,0.75% ,2.0% ,0.25% ,0.0% ,4.0% 
