@@ -1,7 +1,7 @@
 import boto3
 import sys
 import os
-from pdf_to_img import to_jpg
+from scripts.pdf_to_img import to_jpg
 
 
 def upload_files(folder_path, s3bucket, s3_dir):
@@ -30,16 +30,19 @@ def upload_files(folder_path, s3bucket, s3_dir):
 
 if __name__ == "__main__":
     # cml inputs.
-    path = sys.argv[1]
-    s3bucket = sys.argv[2]
-    directory_name = sys.argv[3]
+    folder_path = sys.argv[1]  # image folder path
+    s3bucket = sys.argv[2]  # s3 bucket name
+    bucket_dir = sys.argv[3]  # separate directory within s3 bucket
 
-    if not os.path.exists(path):
+    if not os.path.exists(folder_path):
         raise ValueError(
-            f"Directory: '{path}' does not exist, check the path again.")
+            f"Directory: '{folder_path}' does not exist, check the path again."
+        )
+
+    print("***** Uploading images to S3 *****")
     print("--------------------------------")
-    print(f"File Path: {path}")
+    print(f"Image Folder Path: {folder_path}")
     print(f"S3 Bucket: {s3bucket}")
-    print(f"S3 Directory: {directory_name}")
+    print(f"S3 Directory: {bucket_dir}")
     print("-------------------------------- \n")
-    upload_files(path, s3bucket, directory_name)
+    upload_files(folder_path, s3bucket, bucket_dir)

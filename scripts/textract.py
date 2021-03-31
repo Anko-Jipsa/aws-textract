@@ -41,19 +41,23 @@ def get_text(result, blocks_map):
     return text
 
 
-def get_table_results(file_path):
+def get_table_results(s3bucket, document_name):
 
-    with open(file_path, 'rb') as file:
-        img_test = file.read()
-        bytes_test = bytearray(img_test)
-        print('Image loaded', file_path)
+    # with open(file_path, 'rb') as file:
+    #     img_test = file.read()
+    #     bytes_test = bytearray(img_test)
+    #     print('Image loaded', file_path)
 
     # process using image bytes
     # get the results
     client = boto3.client('textract')
 
-    response = client.analyze_document(Document={'Bytes': bytes_test},
-                                       FeatureTypes=['TABLES'])
+    response = client.analyze_document(
+        Document={'S3Object': {
+            "Bucket": s3bucket,
+            "Name": document_name
+        }},
+        FeatureTypes=['TABLES'])
 
     # Get the text blocks
     blocks = response['Blocks']
@@ -83,9 +87,12 @@ def generate_table(table_result, blocks_map, table_index):
     return table
 
 
-def export_csv(file_path, save_path, output_name):
-    table_dict = get_table_results(file_path)
-    file_id = file_path.split('.')[0][-1]
+def export_csv(s3bucket, document_obj, save_path, output_name):
+    table_dict = get_table_results(s3bucket, document_obj)
+    file_id = document_obj.split('.')[0][-1]
+
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
 
     for index, table in table_dict.items():
         _save_path = os.path.join(save_path,
@@ -93,25 +100,24 @@ def export_csv(file_path, save_path, output_name):
         table.to_csv(_save_path)
 
 
-def main(s3bucket, bucket_path, save_path):
+def textract_api(s3bucket, bucket_path, save_path):
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(s3bucket)
     for bucket_obj in bucket.objects.filter(Prefix=bucket_path):
-        file_obj = bucket_obj.key
-        export_csv(file_obj, save_path, bucket_path)
+        document_obj = bucket_obj.key
+        print(f"EXPORTING: {document_obj}")
+        export_csv(s3bucket, document_obj, save_path, bucket_path)
 
 
 if __name__ == "__main__":
+    csv_save_path = sys.argv[2]  # csv save location
+    s3bucket = sys.argv[3]  # s3 bucket name
+    bucket_dir = sys.argv[4]  # separate directory within s3 bucket
 
-    s3bucket = sys.argv[1]
-    bucket_path = sys.argv[2]
-    save_path = sys.argv[3]
-    if not os.path.exists(save_path):
-        raise ValueError(
-            f"SAVE DIR: '{save_path}' does not exist, check the path again.")
+    print("******* Running Textract *******")
     print("--------------------------------")
     print(f"S3 Bucket: {s3bucket} \n")
-    print(f"S3 Object Dir: {bucket_path} \n")
-    print(f"SAVE DIR: {save_path}")
+    print(f"S3 Directory: {bucket_dir} \n")
+    print(f"CSV SAVE PATH: {csv_save_path}")
     print("-------------------------------- \n")
-    main(s3bucket, save_path, bucket_path)
+    textract_api(s3bucket, bucket_dir, csv_save_path)
