@@ -4,24 +4,30 @@ import os
 from scripts.pdf_to_img import to_jpg
 
 
-def upload_files(folder_path, s3bucket, s3_dir):
-    if not os.path.exists(folder_path):  # check file existence.
-        raise ValueError(f"DOES NOT EXIST: '{folder_path}'")
+def upload_files(input_path: str, s3bucket: str, bucket_path: str):
+    """ Upload JPEG file(s) to designated S3 bucket directory.
 
-    if folder_path.lower().endswith("pdf"):
-        to_jpg(folder_path)  # convert to jpg.
-        folder_path = os.path.dirname(folder_path)  # parent directory.
+    Args:
+        input_path (str): Input directory.
+        s3bucket (str): S3 bucket name.
+        bucket_path (str): Directory within the bucket.
+
+    Raises:
+        ValueError: Non-existence of input path.
+    """
+    if not os.path.exists(input_path):  # check file existence.
+        raise ValueError(f"DOES NOT EXIST: '{folder_path}'")
 
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(s3bucket)
 
-    for subdir, dirs, files in os.walk(folder_path):
+    for subdir, _, files in os.walk(input_path):
         for file in files:
             full_path = os.path.join(subdir, file)
             if file.lower().endswith("jpg") | file.lower().endswith("jpeg"):
                 with open(full_path, 'rb') as data:
-                    bucket.put_object(Key=s3_dir + '/' +
-                                      full_path[len(folder_path) + 1:],
+                    bucket.put_object(Key=bucket_path + '/' +
+                                      full_path[len(input_path) + 1:],
                                       Body=data)
                     print(f"UPLOADED: {file}")
             else:

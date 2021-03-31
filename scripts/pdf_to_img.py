@@ -3,16 +3,23 @@ import os
 from pdf2image import convert_from_path
 
 
-def to_jpg(file_path, save_path):
-    images = convert_from_path(file_path, 500)
+def to_jpg(input_path: str, save_path: str):
+    """ Convert a PDF file pages into JPEG files.
 
+    Args:
+        file_path (str): Input directory.
+        save_path (str): Save directory.
+    """
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
+    images = convert_from_path(input_path, 500)
+    file_name = input_path.split('.')[0].split('/')[-1]
+
     for i, page in enumerate(images):
-        _file = os.path.join(save_path, f'page-{i}.jpg')
-        page.save(_file, 'JPEG')
-        print(f"IMG SAVED: page {i}.jpg")
+        img = os.path.join(save_path, f'{file_name}-{i}.jpg')
+        page.save(img, 'JPEG')
+        print(f"IMG SAVED: {file_name}-{i}.jpg")
 
 
 if __name__ == "__main__":

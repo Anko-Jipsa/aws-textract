@@ -13,7 +13,7 @@ def main(pdf_file, img_save_path, csv_save_path, s3bucket, bucket_path):
     print(f"PDF FILE: {pdf_file} \n")
     print(f"IMG SAVE LOCATION: {img_save_path}")
     print("-------------------------------- \n")
-    to_jpg(pdf_file, img_save_path)
+    to_jpg(input_path=pdf_file, save_path=img_save_path)
     print("******* Converted PDF to images ******* \n \n")
 
     print("--------------------------------")
@@ -21,7 +21,9 @@ def main(pdf_file, img_save_path, csv_save_path, s3bucket, bucket_path):
     print(f"S3 Bucket: {s3bucket}")
     print(f"S3 Directory: {bucket_path}")
     print("-------------------------------- \n")
-    upload_files(img_save_path, s3bucket, bucket_path)
+    upload_files(input_path=img_save_path,
+                 s3bucket=s3bucket,
+                 bucket_path=bucket_path)
     print("******* Uploaded images to S3 ******* \n \n")
 
     print("--------------------------------")
